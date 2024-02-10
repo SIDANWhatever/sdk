@@ -14,3 +14,11 @@ export function getScriptHashFromAddress(addr: string): string | null {
     specificAddr.payment_cred().to_scripthash()?.to_bech32("script") ?? null
   );
 }
+
+export function getPaymentCredFromScriptHash(scriptHash: string): string {
+  const cslScriptHash = C.ScriptHash.from_bech32(scriptHash);
+  const paymentCredByte =
+    C.StakeCredential.from_scripthash(cslScriptHash).to_bytes();
+  const paymentCred = Buffer.from(paymentCredByte).toString("hex");
+  return paymentCred;
+}

@@ -3,3 +3,4 @@ build
 build-tsc
 coverage
 .idea
+.env

@@ -2,6 +2,7 @@ export * from "./adapter";
 export * from "./calculate";
 export * from "./constants";
 export * from "./dex";
+export * from "./maestro-adapter";
 export * from "./types/asset";
 export * from "./types/network";
 export * from "./types/order";
