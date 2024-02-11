@@ -16,9 +16,7 @@ export function getScriptHashFromAddress(addr: string): string | null {
 }
 
 export function getPaymentCredFromScriptHash(scriptHash: string): string {
-  const cslScriptHash = C.ScriptHash.from_bech32(scriptHash);
-  const paymentCredByte =
-    C.StakeCredential.from_scripthash(cslScriptHash).to_bytes();
-  const paymentCred = Buffer.from(paymentCredByte).toString("hex");
+  const paymentCred =
+    C.ScriptHash.from_bech32(scriptHash).to_bech32("addr_shared_vkh");
   return paymentCred;
 }

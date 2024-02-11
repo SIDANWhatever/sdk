@@ -33,23 +33,23 @@ test("getAssetDecimals", async () => {
   expect(await adapter.getAssetDecimals(MIN)).toBe(6);
 });
 
-// test("getPoolPrice", async () => {
-//   const pools = await adapter.getPools({
-//     page: 1,
-//   });
-//   expect(pools.length).toBeGreaterThan(0);
-//   // check random 5 pools
-//   for (let i = 0; i < 5; i++) {
-//     const idx = Math.floor(Math.random() * pools.length);
-//     const pool = pools[idx];
-//     const [priceAB, priceBA] = await adapter.getPoolPrice({ pool });
-//     // product of 2 prices must be approximately equal to 1
-//     // abs(priceAB * priceBA - 1) <= epsilon
-//     expect(priceAB.mul(priceBA).sub(1).abs().toNumber()).toBeLessThanOrEqual(
-//       1e-6
-//     );
-//   }
-// }, 10000);
+test("getPoolPrice", async () => {
+  const pools = await adapter.getPools({
+    page: 1,
+  });
+  expect(pools.length).toBeGreaterThan(0);
+  // check random 5 pools
+  for (let i = 0; i < 5; i++) {
+    const idx = Math.floor(Math.random() * pools.length);
+    const pool = pools[idx];
+    const [priceAB, priceBA] = await adapter.getPoolPrice({ pool });
+    // product of 2 prices must be approximately equal to 1
+    // abs(priceAB * priceBA - 1) <= epsilon
+    expect(priceAB.mul(priceBA).sub(1).abs().toNumber()).toBeLessThanOrEqual(
+      1e-6
+    );
+  }
+}, 10000);
 
 test("getPoolById", async () => {
   const pool = await adapter.getPoolById({ id: MIN_ADA_POOL_ID });

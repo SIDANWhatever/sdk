@@ -1,4 +1,4 @@
-import { MaestroClient } from "@maestro-org/typescript-sdk";
+import { Asset, MaestroClient } from "@maestro-org/typescript-sdk";
 import invariant from "@minswap/tiny-invariant";
 import Big from "big.js";
 
@@ -7,33 +7,20 @@ import {
   GetPoolHistoryParams,
   GetPoolInTxParams,
   GetPoolPriceParams,
+  GetPoolsParams,
 } from "./adapter";
 import { POOL_NFT_POLICY_ID, POOL_SCRIPT_HASH } from "./constants";
 import { PoolHistory, PoolState } from "./types/pool";
-import { checkValidPoolOutput } from "./types/pool.internal";
-import { getScriptHashFromAddress } from "./utils/address-utils.internal";
+import { checkValidPoolOutput, isValidPoolOutput } from "./types/pool.internal";
+import { Value } from "./types/tx.internal";
+import {
+  getPaymentCredFromScriptHash,
+  getScriptHashFromAddress,
+} from "./utils/address-utils.internal";
 
 export type MaestroAdapterOptions = {
   maestro: MaestroClient;
 };
-
-// export type GetPoolsParams = Omit<PaginationOptions, "page"> & {
-//   page: number;
-// };
-
-// export type GetPoolByIdParams = {
-//   id: string;
-// };
-
-// export type GetPoolPriceParams = {
-//   pool: PoolState;
-//   decimalsA?: number;
-//   decimalsB?: number;
-// };
-
-// export type GetPoolHistoryParams = PaginationOptions & {
-//   id: string;
-// };
 
 export class MaestroAdaptor {
   private readonly api: MaestroClient;
@@ -42,35 +29,40 @@ export class MaestroAdaptor {
     this.api = maestro;
   }
 
-  // /**
-  //  * @returns The latest pools or empty array if current page is after last page
-  //  */
-  // public async getPools({
-  //   count = 100,
-  //   order = "asc",
-  // }: GetPoolsParams): Promise<PoolState[]> {
-  //   const res = await this.api.addresses.txsByPaymentCred(POOL_SCRIPT_HASH, {
-  //     count,
-  //     order,
-  //   });
-  //   const utxos = res.data.data;
-  //   return utxos
-  //     .filter((utxo) =>
-  //       isValidPoolOutput(utxo., utxo.amount, utxo.data_hash)
-  //     )
-  //     .map((utxo) => {
-  //       invariant(
-  //         utxo.data_hash,
-  //         `expect pool to have datum hash, got ${utxo.data_hash}`
-  //       );
-  //       return new PoolState(
-  //         utxo.address,
-  //         { txHash: utxo.tx_hash, index: utxo.output_index },
-  //         utxo.amount,
-  //         utxo.data_hash
-  //       );
-  //     });
-  // }
+  /**
+   * @returns The latest pools or empty array if current page is after last page
+   */
+  public async getPools({
+    count = 100,
+    order = "asc",
+  }: GetPoolsParams): Promise<PoolState[]> {
+    const paymentCred = getPaymentCredFromScriptHash(POOL_SCRIPT_HASH);
+    const res = await this.api.addresses.utxosByPaymentCred(paymentCred, {
+      count,
+      order,
+    });
+    const utxos = res.data.data;
+    return utxos
+      .filter((utxo) =>
+        isValidPoolOutput(
+          utxo.address,
+          this.toValue(utxo.assets),
+          utxo.datum?.hash || null
+        )
+      )
+      .map((utxo) => {
+        invariant(
+          utxo.datum?.hash,
+          `expect pool to have datum hash, got ${utxo.datum?.hash}`
+        );
+        return new PoolState(
+          utxo.address,
+          { txHash: utxo.tx_hash, index: utxo.index },
+          this.toValue(utxo.assets),
+          utxo.datum.hash
+        );
+      });
+  }
 
   /**
    * Get a specific pool by its ID.
@@ -128,10 +120,7 @@ export class MaestroAdaptor {
     if (!poolUtxo) {
       return null;
     }
-    const poolValue = poolUtxo.assets.map((asset) => ({
-      unit: asset.unit,
-      quantity: asset.amount.toString(),
-    }));
+    const poolValue = this.toValue(poolUtxo.assets);
     const dataHash = poolUtxo.datum?.hash || "";
     checkValidPoolOutput(poolUtxo.address, poolValue, dataHash);
     invariant(dataHash, `expect pool to have datum hash, got ${dataHash}`);
@@ -190,6 +179,12 @@ export class MaestroAdaptor {
     const scriptsDatum = await this.api.datum.lookupDatum(datumHash);
     return scriptsDatum.data.data.bytes;
   }
+
+  private toValue = (assets: Asset[]): Value =>
+    assets.map((asset) => ({
+      unit: asset.unit,
+      quantity: asset.amount.toString(),
+    }));
 }
 
 function isValidHex(hexString: string): boolean {
