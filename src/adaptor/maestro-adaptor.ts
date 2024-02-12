@@ -224,6 +224,9 @@ export class MaestroAdaptor {
       if (cursor) {
         queryParam.cursor = cursor;
       }
+      if (cursor === null) {
+        break;
+      }
       res = (await this.api.addresses.utxosByPaymentCred(param, queryParam))
         .data;
       cursor = res.next_cursor;
@@ -243,6 +246,9 @@ export class MaestroAdaptor {
     while (curr < page) {
       if (cursor) {
         queryParam.cursor = cursor;
+      }
+      if (cursor === null) {
+        break;
       }
       res = (await this.api.assets.assetTxs(param, queryParam)).data;
       cursor = res.next_cursor;
