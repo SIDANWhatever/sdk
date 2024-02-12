@@ -1,4 +1,11 @@
-import { Asset, MaestroClient } from "@maestro-org/typescript-sdk";
+import {
+  Asset,
+  AssetTxsQueryParams,
+  MaestroClient,
+  PaginatedAssetTx,
+  PaginatedUtxoWithSlot,
+  UtxosByPaymentCredQueryParams,
+} from "@maestro-org/typescript-sdk";
 import invariant from "@minswap/tiny-invariant";
 import Big from "big.js";
 
@@ -33,15 +40,26 @@ export class MaestroAdaptor {
    * @returns The latest pools or empty array if current page is after last page
    */
   public async getPools({
+    page,
     count = 100,
     order = "asc",
   }: GetPoolsParams): Promise<PoolState[]> {
     const paymentCred = getPaymentCredFromScriptHash(POOL_SCRIPT_HASH);
-    const res = await this.api.addresses.utxosByPaymentCred(paymentCred, {
-      count,
-      order,
-    });
-    const utxos = res.data.data;
+    // console.log(page);
+
+    // const res = await this.api.addresses.utxosByPaymentCred(paymentCred, {
+    //   count,
+    //   order,
+    // });
+    const res = await this.getPaginatedUtxosByPaymentCred(
+      paymentCred,
+      {
+        count,
+        order,
+      },
+      page
+    );
+    const utxos = res.data;
     return utxos
       .filter((utxo) =>
         isValidPoolOutput(
@@ -86,15 +104,23 @@ export class MaestroAdaptor {
 
   public async getPoolHistory({
     id,
+    page = 1,
     count = 100,
     order = "desc",
   }: GetPoolHistoryParams): Promise<PoolHistory[]> {
     const nft = `${POOL_NFT_POLICY_ID}${id}`;
-    const nftTxs = await this.api.assets.assetTxs(nft, {
-      count,
-      order,
-    });
-    return nftTxs.data.data.map(
+    // console.log(page);
+    // const nftTxs = await this.api.assets.assetTxs(nft, { count, order });
+
+    const nftTxs = await this.getPaginatedAssetTx(
+      nft,
+      {
+        count,
+        order,
+      },
+      page
+    );
+    return nftTxs.data.map(
       (tx: any): PoolHistory => ({
         txHash: tx.tx_hash,
         time: tx.timestamp,
@@ -183,6 +209,47 @@ export class MaestroAdaptor {
       unit: asset.unit,
       quantity: asset.amount.toString(),
     }));
+
+  private getPaginatedUtxosByPaymentCred = async <
+    R extends UtxosByPaymentCredQueryParams,
+  >(
+    param: string,
+    queryParam: R,
+    page: number
+  ): Promise<PaginatedUtxoWithSlot> => {
+    let curr = 0;
+    let res: PaginatedUtxoWithSlot = {} as PaginatedUtxoWithSlot;
+    let cursor: string | undefined | null = "";
+    while (curr < page) {
+      if (cursor) {
+        queryParam.cursor = cursor;
+      }
+      res = (await this.api.addresses.utxosByPaymentCred(param, queryParam))
+        .data;
+      cursor = res.next_cursor;
+      curr++;
+    }
+    return res;
+  };
+
+  private getPaginatedAssetTx = async <R extends AssetTxsQueryParams>(
+    param: string,
+    queryParam: R,
+    page: number
+  ): Promise<PaginatedAssetTx> => {
+    let curr = 0;
+    let res: PaginatedAssetTx = {} as PaginatedAssetTx;
+    let cursor: string | undefined | null = "";
+    while (curr < page) {
+      if (cursor) {
+        queryParam.cursor = cursor;
+      }
+      res = (await this.api.assets.assetTxs(param, queryParam)).data;
+      cursor = res.next_cursor;
+      curr++;
+    }
+    return res;
+  };
 }
 
 function isValidHex(hexString: string): boolean {
