@@ -2,30 +2,30 @@ import { Asset, MaestroClient } from "@maestro-org/typescript-sdk";
 import invariant from "@minswap/tiny-invariant";
 import Big from "big.js";
 
+import { POOL_NFT_POLICY_ID, POOL_SCRIPT_HASH } from "../constants";
 import {
   GetPoolByIdParams,
   GetPoolHistoryParams,
   GetPoolInTxParams,
   GetPoolPriceParams,
   GetPoolsParams,
-} from "./adapter";
-import { POOL_NFT_POLICY_ID, POOL_SCRIPT_HASH } from "./constants";
-import { PoolHistory, PoolState } from "./types/pool";
-import { checkValidPoolOutput, isValidPoolOutput } from "./types/pool.internal";
-import { Value } from "./types/tx.internal";
+  MaestroAdaptorOptions,
+} from "../types/adaptor";
+import { PoolHistory, PoolState } from "../types/pool";
+import {
+  checkValidPoolOutput,
+  isValidPoolOutput,
+} from "../types/pool.internal";
+import { Value } from "../types/tx.internal";
 import {
   getPaymentCredFromScriptHash,
   getScriptHashFromAddress,
-} from "./utils/address-utils.internal";
-
-export type MaestroAdapterOptions = {
-  maestro: MaestroClient;
-};
+} from "../utils/address-utils.internal";
 
 export class MaestroAdaptor {
   private readonly api: MaestroClient;
 
-  constructor({ maestro }: MaestroAdapterOptions) {
+  constructor({ maestro }: MaestroAdaptorOptions) {
     this.api = maestro;
   }
 
@@ -97,8 +97,6 @@ export class MaestroAdaptor {
     return nftTxs.data.data.map(
       (tx: any): PoolHistory => ({
         txHash: tx.tx_hash,
-        txIndex: 0, // To discuss: No such info at response
-        blockHeight: 9913642, // To discuss: No such info at response
         time: tx.timestamp,
       })
     );

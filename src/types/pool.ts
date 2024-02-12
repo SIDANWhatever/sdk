@@ -104,9 +104,9 @@ export class PoolState {
 export type PoolHistory = {
   txHash: string;
   /** Transaction index within the block */
-  txIndex: number;
-  blockHeight: number;
-  time: Date;
+  txIndex?: number;
+  blockHeight?: number;
+  time?: Date;
 };
 
 export type PoolDatum = {

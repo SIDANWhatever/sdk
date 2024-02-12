@@ -2,45 +2,29 @@ import {
   BlockFrostAPI,
   BlockfrostServerError,
 } from "@blockfrost/blockfrost-js";
-import { PaginationOptions } from "@blockfrost/blockfrost-js/lib/types";
 import invariant from "@minswap/tiny-invariant";
 import Big from "big.js";
 
-import { POOL_NFT_POLICY_ID, POOL_SCRIPT_HASH } from "./constants";
-import { PoolHistory, PoolState } from "./types/pool";
-import { checkValidPoolOutput, isValidPoolOutput } from "./types/pool.internal";
-import { getScriptHashFromAddress } from "./utils/address-utils.internal";
+import { POOL_NFT_POLICY_ID, POOL_SCRIPT_HASH } from "../constants";
+import {
+  BlockfrostAdaptorOptions,
+  GetPoolByIdParams,
+  GetPoolHistoryParams,
+  GetPoolInTxParams,
+  GetPoolPriceParams,
+  GetPoolsParams,
+} from "../types/adaptor";
+import { PoolHistory, PoolState } from "../types/pool";
+import {
+  checkValidPoolOutput,
+  isValidPoolOutput,
+} from "../types/pool.internal";
+import { getScriptHashFromAddress } from "../utils/address-utils.internal";
 
-export type BlockfrostAdapterOptions = {
-  blockFrost: BlockFrostAPI;
-};
-
-export type GetPoolsParams = Omit<PaginationOptions, "page"> & {
-  page: number;
-};
-
-export type GetPoolByIdParams = {
-  id: string;
-};
-
-export type GetPoolPriceParams = {
-  pool: PoolState;
-  decimalsA?: number;
-  decimalsB?: number;
-};
-
-export type GetPoolHistoryParams = PaginationOptions & {
-  id: string;
-};
-
-export type GetPoolInTxParams = {
-  txHash: string;
-};
-
-export class BlockfrostAdapter {
+export class BlockfrostAdaptor {
   private readonly api: BlockFrostAPI;
 
-  constructor({ blockFrost }: BlockfrostAdapterOptions) {
+  constructor({ blockFrost }: BlockfrostAdaptorOptions) {
     this.api = blockFrost;
   }
 

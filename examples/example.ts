@@ -15,7 +15,7 @@ import {
 import {
   ADA,
   Asset,
-  BlockfrostAdapter,
+  BlockfrostAdaptor,
   calculateDeposit,
   calculateSwapExactIn,
   calculateSwapExactOut,
@@ -40,7 +40,7 @@ async function main(): Promise<void> {
     address
   );
 
-  const blockfrostAdapter = new BlockfrostAdapter({
+  const blockfrostAdaptor = new BlockfrostAdaptor({
     blockFrost: new BlockFrostAPI({
       projectId: blockfrostProjectId,
       network: "preprod",
@@ -52,7 +52,7 @@ async function main(): Promise<void> {
   const txComplete = await _swapExactInTxExample(
     network,
     lucid,
-    blockfrostAdapter,
+    blockfrostAdaptor,
     address,
     utxos
   );
@@ -66,17 +66,17 @@ async function main(): Promise<void> {
 
 async function getPoolById(
   network: Network,
-  blockfrostAdapter: BlockfrostAdapter,
+  blockfrostAdaptor: BlockfrostAdaptor,
   poolId: string
 ): Promise<{ poolState: PoolState; poolDatum: PoolDatum }> {
-  const pool = await blockfrostAdapter.getPoolById({
+  const pool = await blockfrostAdaptor.getPoolById({
     id: poolId,
   });
   if (!pool) {
     throw new Error(`Not found PoolState of ID: ${poolId}`);
   }
 
-  const rawRoolDatum = await blockfrostAdapter.getDatumByDatumHash(
+  const rawRoolDatum = await blockfrostAdaptor.getDatumByDatumHash(
     pool.datumHash
   );
   const poolDatum = PoolDatum.fromPlutusData(
@@ -92,7 +92,7 @@ async function getPoolById(
 async function _depositTxExample(
   network: Network,
   lucid: Lucid,
-  blockfrostAdapter: BlockfrostAdapter,
+  blockfrostAdaptor: BlockfrostAdaptor,
   address: Address,
   availableUtxos: UTxO[]
 ): Promise<TxComplete> {
@@ -102,7 +102,7 @@ async function _depositTxExample(
 
   const { poolState, poolDatum } = await getPoolById(
     network,
-    blockfrostAdapter,
+    blockfrostAdaptor,
     poolId
   );
 
@@ -136,7 +136,7 @@ async function _depositTxExample(
 async function _swapExactInTxExample(
   network: Network,
   lucid: Lucid,
-  blockfrostAdapter: BlockfrostAdapter,
+  blockfrostAdaptor: BlockfrostAdaptor,
   address: Address,
   availableUtxos: UTxO[]
 ): Promise<TxComplete> {
@@ -146,7 +146,7 @@ async function _swapExactInTxExample(
 
   const { poolState, poolDatum } = await getPoolById(
     network,
-    blockfrostAdapter,
+    blockfrostAdaptor,
     poolId
   );
 
@@ -177,7 +177,7 @@ async function _swapExactInTxExample(
 async function _swapExactOutTxExample(
   network: Network,
   lucid: Lucid,
-  blockfrostAdapter: BlockfrostAdapter,
+  blockfrostAdaptor: BlockfrostAdaptor,
   address: Address,
   availableUtxos: UTxO[]
 ): Promise<TxComplete> {
@@ -187,7 +187,7 @@ async function _swapExactOutTxExample(
 
   const { poolState, poolDatum } = await getPoolById(
     network,
-    blockfrostAdapter,
+    blockfrostAdaptor,
     poolId
   );
 
@@ -217,7 +217,7 @@ async function _swapExactOutTxExample(
 async function _swapLimitExample(
   network: Network,
   lucid: Lucid,
-  blockfrostAdapter: BlockfrostAdapter,
+  blockfrostAdaptor: BlockfrostAdaptor,
   address: Address,
   availableUtxos: UTxO[]
 ): Promise<TxComplete> {
@@ -225,7 +225,7 @@ async function _swapLimitExample(
   const poolId =
     "3bb0079303c57812462dec9de8fb867cef8fd3768de7f12c77f6f0dd80381d0d";
 
-  const { poolDatum } = await getPoolById(network, blockfrostAdapter, poolId);
+  const { poolDatum } = await getPoolById(network, blockfrostAdaptor, poolId);
 
   const swapAmountADA = 10_000_000n;
 
@@ -248,7 +248,7 @@ async function _swapLimitExample(
 async function _withdrawTxExample(
   network: Network,
   lucid: Lucid,
-  blockfrostAdapter: BlockfrostAdapter,
+  blockfrostAdaptor: BlockfrostAdaptor,
   address: Address,
   availableUtxos: UTxO[]
 ): Promise<TxComplete> {
@@ -258,7 +258,7 @@ async function _withdrawTxExample(
 
   const { poolState, poolDatum } = await getPoolById(
     network,
-    blockfrostAdapter,
+    blockfrostAdaptor,
     poolId
   );
 
@@ -293,7 +293,7 @@ async function _withdrawTxExample(
 async function _zapTxExample(
   network: Network,
   lucid: Lucid,
-  blockfrostAdapter: BlockfrostAdapter,
+  blockfrostAdaptor: BlockfrostAdaptor,
   address: Address,
   availableUtxos: UTxO[]
 ): Promise<TxComplete> {
@@ -303,7 +303,7 @@ async function _zapTxExample(
 
   const { poolState, poolDatum } = await getPoolById(
     network,
-    blockfrostAdapter,
+    blockfrostAdaptor,
     poolId
   );
 
@@ -333,13 +333,13 @@ async function _zapTxExample(
 
 async function _cancelTxExample(
   lucid: Lucid,
-  blockFrostAdapter: BlockfrostAdapter,
+  blockFrostAdaptor: BlockfrostAdaptor,
   address: Address,
   orderOutRef: OutRef
 ): Promise<TxComplete> {
   const orderUtxo = (await lucid.utxosByOutRef([orderOutRef]))[0];
   invariant(orderUtxo.datumHash, "order utxo missing datum hash");
-  orderUtxo.datum = await blockFrostAdapter.getDatumByDatumHash(
+  orderUtxo.datum = await blockFrostAdaptor.getDatumByDatumHash(
     orderUtxo.datumHash
   );
   const dex = new Dex(lucid);
