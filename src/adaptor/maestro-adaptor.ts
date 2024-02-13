@@ -96,10 +96,10 @@ export class MaestroAdaptor {
       count: 1,
       order: "desc",
     });
-    if (nftTxs.data.data.length === 0) {
+    if (nftTxs.data.length === 0) {
       return null;
     }
-    return this.getPoolInTx({ txHash: nftTxs.data.data[0].tx_hash });
+    return this.getPoolInTx({ txHash: nftTxs.data[0].tx_hash });
   }
 
   public async getPoolHistory({
@@ -121,9 +121,9 @@ export class MaestroAdaptor {
       page
     );
     return nftTxs.data.map(
-      (tx: any): PoolHistory => ({
+      (tx): PoolHistory => ({
         txHash: tx.tx_hash,
-        time: tx.timestamp,
+        time: new Date(tx.timestamp),
       })
     );
   }
@@ -138,7 +138,7 @@ export class MaestroAdaptor {
     txHash,
   }: GetPoolInTxParams): Promise<PoolState | null> {
     const poolTx = await this.api.transactions.txInfo(txHash);
-    const poolUtxo = poolTx.data.data.outputs.find(
+    const poolUtxo = poolTx.data.outputs.find(
       (o) => getScriptHashFromAddress(o.address) === POOL_SCRIPT_HASH
     );
     if (!poolUtxo) {
@@ -162,7 +162,7 @@ export class MaestroAdaptor {
     }
     try {
       const assetAInfo = await this.api.assets.assetInfo(asset);
-      return assetAInfo.data.data.token_registry_metadata?.decimals ?? 0;
+      return assetAInfo.data.token_registry_metadata?.decimals ?? 0;
     } catch (err) {
       if (isValidHex(asset) && asset.length <= 122) return 0;
       throw err;
@@ -201,7 +201,7 @@ export class MaestroAdaptor {
 
   public async getDatumByDatumHash(datumHash: string): Promise<string> {
     const scriptsDatum = await this.api.datum.lookupDatum(datumHash);
-    return scriptsDatum.data.data.bytes;
+    return scriptsDatum.data.bytes;
   }
 
   private toValue = (assets: Asset[]): Value =>
@@ -227,8 +227,7 @@ export class MaestroAdaptor {
       if (cursor === null) {
         break;
       }
-      res = (await this.api.addresses.utxosByPaymentCred(param, queryParam))
-        .data;
+      res = await this.api.addresses.utxosByPaymentCred(param, queryParam);
       cursor = res.next_cursor;
       curr++;
     }
@@ -250,7 +249,7 @@ export class MaestroAdaptor {
       if (cursor === null) {
         break;
       }
-      res = (await this.api.assets.assetTxs(param, queryParam)).data;
+      res = await this.api.assets.assetTxs(param, queryParam);
       cursor = res.next_cursor;
       curr++;
     }
