@@ -1,4 +1,4 @@
-export * from "./adaptor";
+export * from "./adapter";
 export * from "./calculate";
 export * from "./constants";
 export * from "./dex";

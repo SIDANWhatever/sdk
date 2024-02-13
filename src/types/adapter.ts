@@ -4,11 +4,11 @@ import { MaestroClient } from "@maestro-org/typescript-sdk";
 
 import { PoolState } from "./pool";
 
-export type MaestroAdaptorOptions = {
+export type MaestroAdapterOptions = {
   maestro: MaestroClient;
 };
 
-export type BlockfrostAdaptorOptions = {
+export type BlockfrostAdapterOptions = {
   blockFrost: BlockFrostAPI;
 };
 

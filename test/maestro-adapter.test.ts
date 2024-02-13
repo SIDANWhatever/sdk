@@ -1,7 +1,7 @@
 import { jest } from "@jest/globals";
 import { Configuration, MaestroClient } from "@maestro-org/typescript-sdk";
 
-import { MaestroAdaptor } from "../src";
+import { MaestroAdapter } from "../src";
 
 function mustGetEnv(key: string): string {
   const val = process.env[key];
@@ -15,7 +15,7 @@ const MIN = "29d222ce763455e3d7a09a665ce554f00ac89d2e99a1a83d267170c64d494e";
 const MIN_ADA_POOL_ID =
   "6aa2153e1ae896a95539c9d62f76cedcdabdcdf144e564b8955f609d660cf6a2";
 
-const adapter = new MaestroAdaptor({
+const adapter = new MaestroAdapter({
   maestro: new MaestroClient(
     new Configuration({
       apiKey: mustGetEnv("MAESTRO_PROJECT_ID_MAINNET"),

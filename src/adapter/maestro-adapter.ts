@@ -16,8 +16,8 @@ import {
   GetPoolInTxParams,
   GetPoolPriceParams,
   GetPoolsParams,
-  MaestroAdaptorOptions,
-} from "../types/adaptor";
+  MaestroAdapterOptions,
+} from "../types/adapter";
 import { PoolHistory, PoolState } from "../types/pool";
 import {
   checkValidPoolOutput,
@@ -29,10 +29,10 @@ import {
   getScriptHashFromAddress,
 } from "../utils/address-utils.internal";
 
-export class MaestroAdaptor {
+export class MaestroAdapter {
   private readonly api: MaestroClient;
 
-  constructor({ maestro }: MaestroAdaptorOptions) {
+  constructor({ maestro }: MaestroAdapterOptions) {
     this.api = maestro;
   }
 

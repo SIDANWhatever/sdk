@@ -7,13 +7,13 @@ import Big from "big.js";
 
 import { POOL_NFT_POLICY_ID, POOL_SCRIPT_HASH } from "../constants";
 import {
-  BlockfrostAdaptorOptions,
+  BlockfrostAdapterOptions,
   GetPoolByIdParams,
   GetPoolHistoryParams,
   GetPoolInTxParams,
   GetPoolPriceParams,
   GetPoolsParams,
-} from "../types/adaptor";
+} from "../types/adapter";
 import { PoolHistory, PoolState } from "../types/pool";
 import {
   checkValidPoolOutput,
@@ -21,10 +21,10 @@ import {
 } from "../types/pool.internal";
 import { getScriptHashFromAddress } from "../utils/address-utils.internal";
 
-export class BlockfrostAdaptor {
+export class BlockfrostAdapter {
   private readonly api: BlockFrostAPI;
 
-  constructor({ blockFrost }: BlockfrostAdaptorOptions) {
+  constructor({ blockFrost }: BlockfrostAdapterOptions) {
     this.api = blockFrost;
   }
 
