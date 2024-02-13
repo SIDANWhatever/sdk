@@ -45,12 +45,6 @@ export class MaestroAdaptor {
     order = "asc",
   }: GetPoolsParams): Promise<PoolState[]> {
     const paymentCred = getPaymentCredFromScriptHash(POOL_SCRIPT_HASH);
-    // console.log(page);
-
-    // const res = await this.api.addresses.utxosByPaymentCred(paymentCred, {
-    //   count,
-    //   order,
-    // });
     const res = await this.getPaginatedUtxosByPaymentCred(
       paymentCred,
       {
@@ -109,9 +103,6 @@ export class MaestroAdaptor {
     order = "desc",
   }: GetPoolHistoryParams): Promise<PoolHistory[]> {
     const nft = `${POOL_NFT_POLICY_ID}${id}`;
-    // console.log(page);
-    // const nftTxs = await this.api.assets.assetTxs(nft, { count, order });
-
     const nftTxs = await this.getPaginatedAssetTx(
       nft,
       {
